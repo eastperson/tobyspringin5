@@ -13,9 +13,9 @@ public class UserDao {
 
     // User 등록
     public void add(User user) throws ClassNotFoundException, SQLException {
-        Class.forName("com.mysql.jdbc.Driver");
+        Class.forName("com.mysql.cj.jdbc.Driver");
         Connection connection = DriverManager.getConnection(
-                "jdbc:mysql://localhost/springbook", "spring", "book");
+                "jdbc:mysql://localhost:3306/springbook", "spring", "book");
 
         PreparedStatement preparedStatement = connection.prepareStatement(
                 "insert into users(id, name, password) values (?,?,?)");
@@ -31,9 +31,9 @@ public class UserDao {
 
     // User 조회
     public User get(String id) throws ClassNotFoundException, SQLException {
-        Class.forName("com.mysql.jdbc.Driver");
+        Class.forName("com.mysql.cj.jdbc.Driver");
         Connection connection = DriverManager.getConnection(
-                "jdbc:mysql://localhost/springbook", "spring", "book");
+                "jdbc:mysql://localhost:3306/springbook", "spring", "book");
 
         PreparedStatement preparedStatement = connection.prepareStatement(
                 "select * from users where id = ?");

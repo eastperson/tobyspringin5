@@ -15,6 +15,7 @@ repositories {
 dependencies {
     implementation("org.projectlombok:lombok:1.18.24")
     annotationProcessor("org.projectlombok:lombok:1.18.24")
+    implementation("mysql:mysql-connector-java:8.0.30")
 }
 
 tasks.getByName<Test>("test") {
