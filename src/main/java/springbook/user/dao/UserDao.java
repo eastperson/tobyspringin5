@@ -9,7 +9,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class UserDao {
+public abstract class UserDao {
 
     // User 등록
     public void add(User user) throws ClassNotFoundException, SQLException {
@@ -25,12 +25,6 @@ public class UserDao {
 
         preparedStatement.close();
         connection.close();
-    }
-
-    private Connection getConnection() throws SQLException, ClassNotFoundException {
-        Class.forName("com.mysql.cj.jdbc.Driver");
-        return DriverManager.getConnection(
-                "jdbc:mysql://localhost:3306/springbook", "spring", "book");
     }
 
     // User 조회
@@ -56,4 +50,6 @@ public class UserDao {
 
         return user;
     }
+
+    public abstract Connection getConnection() throws SQLException, ClassNotFoundException;
 }
