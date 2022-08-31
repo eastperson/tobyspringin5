@@ -13,9 +13,7 @@ public class UserDao {
 
     // User 등록
     public void add(User user) throws ClassNotFoundException, SQLException {
-        Class.forName("com.mysql.cj.jdbc.Driver");
-        Connection connection = DriverManager.getConnection(
-                "jdbc:mysql://localhost:3306/springbook", "spring", "book");
+        Connection connection = getConnection();
 
         PreparedStatement preparedStatement = connection.prepareStatement(
                 "insert into users(id, name, password) values (?,?,?)");
@@ -29,11 +27,15 @@ public class UserDao {
         connection.close();
     }
 
+    private Connection getConnection() throws SQLException, ClassNotFoundException {
+        Class.forName("com.mysql.cj.jdbc.Driver");
+        return DriverManager.getConnection(
+                "jdbc:mysql://localhost:3306/springbook", "spring", "book");
+    }
+
     // User 조회
     public User get(String id) throws ClassNotFoundException, SQLException {
-        Class.forName("com.mysql.cj.jdbc.Driver");
-        Connection connection = DriverManager.getConnection(
-                "jdbc:mysql://localhost:3306/springbook", "spring", "book");
+        Connection connection = getConnection();
 
         PreparedStatement preparedStatement = connection.prepareStatement(
                 "select * from users where id = ?");
