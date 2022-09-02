@@ -3,17 +3,21 @@ package springbook.user.dao;
 import springbook.user.domain.User;
 
 import java.sql.Connection;
-import java.sql.Driver;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public abstract class UserDao {
 
+    private SimpleConnectionMaker simpleConnectionMaker;
+
+    public UserDao() {
+        simpleConnectionMaker = new SimpleConnectionMaker();
+    }
+
     // User 등록
     public void add(User user) throws ClassNotFoundException, SQLException {
-        Connection connection = getConnection();
+        Connection connection = simpleConnectionMaker.makeNewConnection();
 
         PreparedStatement preparedStatement = connection.prepareStatement(
                 "insert into users(id, name, password) values (?,?,?)");
@@ -29,7 +33,7 @@ public abstract class UserDao {
 
     // User 조회
     public User get(String id) throws ClassNotFoundException, SQLException {
-        Connection connection = getConnection();
+        Connection connection = simpleConnectionMaker.makeNewConnection();
 
         PreparedStatement preparedStatement = connection.prepareStatement(
                 "select * from users where id = ?");
@@ -50,6 +54,4 @@ public abstract class UserDao {
 
         return user;
     }
-
-    public abstract Connection getConnection() throws SQLException, ClassNotFoundException;
 }
