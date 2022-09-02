@@ -9,15 +9,15 @@ import java.sql.SQLException;
 
 public abstract class UserDao {
 
-    private SimpleConnectionMaker simpleConnectionMaker;
+    private ConnectionMaker connectionMaker;
 
     public UserDao() {
-        simpleConnectionMaker = new SimpleConnectionMaker();
+        connectionMaker = new NConnectionMaker();
     }
 
     // User 등록
     public void add(User user) throws ClassNotFoundException, SQLException {
-        Connection connection = simpleConnectionMaker.makeNewConnection();
+        Connection connection = connectionMaker.makeNewConnection();
 
         PreparedStatement preparedStatement = connection.prepareStatement(
                 "insert into users(id, name, password) values (?,?,?)");
@@ -33,7 +33,7 @@ public abstract class UserDao {
 
     // User 조회
     public User get(String id) throws ClassNotFoundException, SQLException {
-        Connection connection = simpleConnectionMaker.makeNewConnection();
+        Connection connection = connectionMaker.makeNewConnection();
 
         PreparedStatement preparedStatement = connection.prepareStatement(
                 "select * from users where id = ?");
