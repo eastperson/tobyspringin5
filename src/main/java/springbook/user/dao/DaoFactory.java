@@ -13,7 +13,7 @@ public class DaoFactory {
     // IoC 방식의 기능을 제공할 완벽한 설정정보
     @Bean
     public UserDao userDao() {
-        return new UserDao(connectionMaker());
+        return new UserDao();
     }
 
     public AccountDao accountDao() {
