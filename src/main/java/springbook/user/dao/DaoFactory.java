@@ -11,9 +11,8 @@ public class DaoFactory {
 
     // UserDao 타입 오브젝트를 생성하고 초기화해서 반환 @Bean
     // IoC 방식의 기능을 제공할 완벽한 설정정보
-    @Bean
     public UserDao userDao() {
-        return new UserDao();
+        return new UserDao(connectionMaker());
     }
 
     public AccountDao accountDao() {
@@ -24,7 +23,6 @@ public class DaoFactory {
         return new MessageDao(connectionMaker());
     }
 
-    @Bean
     public ConnectionMaker connectionMaker() {
         return new DConnectionMaker();
     }

@@ -11,9 +11,8 @@ public class UserDao {
 
     private ConnectionMaker connectionMaker;
 
-    public UserDao() {
-        DaoFactory daoFactory = new DaoFactory();
-        this.connectionMaker = daoFactory.connectionMaker();
+    public UserDao(ConnectionMaker connectionMaker) {
+        this.connectionMaker = connectionMaker;
     }
 
     // User 등록
