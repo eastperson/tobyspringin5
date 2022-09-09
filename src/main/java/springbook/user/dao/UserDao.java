@@ -1,5 +1,7 @@
 package springbook.user.dao;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import springbook.user.domain.User;
 
 import java.sql.Connection;
@@ -7,10 +9,12 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+@Component
 public class UserDao {
 
     private ConnectionMaker connectionMaker;
 
+    @Autowired
     public void setConnectionMaker(ConnectionMaker connectionMaker) {
         this.connectionMaker = connectionMaker;
     }

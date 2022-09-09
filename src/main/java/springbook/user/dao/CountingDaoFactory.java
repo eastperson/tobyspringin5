@@ -23,6 +23,11 @@ public class CountingDaoFactory {
 
     @Bean
     public ConnectionMaker realConnectionMaker() {
-        return new DConnectionMaker();
+        return new DConnectionMaker(dataSource());
+    }
+
+    @Bean
+    public DataSource dataSource() {
+        return new DDataSource();
     }
 }
