@@ -2,6 +2,7 @@ package springbook.user.dao;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import springbook.user.dao.strategy.AddStatement;
 import springbook.user.dao.strategy.DeleteAllStatement;
 import springbook.user.dao.strategy.StatementStrategy;
 import springbook.user.domain.User;
@@ -38,18 +39,8 @@ public class UserDao {
 
     // User 등록
     public void add(User user) throws ClassNotFoundException, SQLException {
-        Connection connection = connectionMaker.makeNewConnection();
-
-        PreparedStatement preparedStatement = connection.prepareStatement(
-                "insert into users(id, name, password) values (?,?,?)");
-        preparedStatement.setString(1, user.getId());
-        preparedStatement.setString(2, user.getName());
-        preparedStatement.setString(3, user.getPassword());
-
-        preparedStatement.executeUpdate();
-
-        preparedStatement.close();
-        connection.close();
+        StatementStrategy addStatement = new AddStatement(user);
+        jdbcContextWithStatementStrategy(addStatement);
     }
 
     // User 조회
