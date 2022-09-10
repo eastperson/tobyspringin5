@@ -37,13 +37,41 @@ public class UserDao {
 
     // User 조회
     public User get(String id) throws ClassNotFoundException, SQLException {
-        Connection connection = connectionMaker.makeNewConnection();
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
 
-        PreparedStatement preparedStatement = connection.prepareStatement(
-                "select * from users where id = ?");
-        preparedStatement.setString(1, id);
+        try {
+            connection = connectionMaker.makeNewConnection();
+            preparedStatement = connection.prepareStatement(
+                    "select * from users where id = ?");
+            preparedStatement.setString(1, id);
+            resultSet = preparedStatement.executeQuery();
+        }  catch (SQLException e) {
+            throw  e;
+        } finally {
+            if (preparedStatement != null) {
+                try {
+                    preparedStatement.close();
+                    // preparedStatement.close()에서 SQLException이 발생할 수 있기 때문에 이를 잡아줘야 한다.
+                } catch (SQLException e) {
+                }
+            }
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException e) {
 
-        ResultSet resultSet = preparedStatement.executeQuery();
+                }
+            }
+            if (resultSet != null) {
+                try {
+                    resultSet.close();
+                } catch (SQLException e) {
+
+                }
+            }
+        }
 
         User user = null;
         if (resultSet.next()) {
@@ -64,13 +92,34 @@ public class UserDao {
     }
 
     public void deleteAll() throws SQLException, ClassNotFoundException {
-        Connection connection = connectionMaker.makeNewConnection();
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
 
-        PreparedStatement ps = connection.prepareStatement("delete from users");
-        ps.executeUpdate();
+        try {
+            // 예외가 발생할 가능성이 있는 코드를 모두 try 블록으로 묶어준다.
+            connection = connectionMaker.makeNewConnection();
+            preparedStatement = connection.prepareStatement("delete from users");
+            preparedStatement.executeUpdate();
+        // 예외가 발생했을 때 부가적인 작업을 해줄 수 있도록 catch 블록을 둔다. 아직은 예외를 다시 메소드 밖으로 던지는 것밖에 없다.
+        } catch (Exception e) {
+            throw e;
+        // finally 이므로 try 블록에서 예외가 발생했을 때나 안 했을때나 모두 실행된다.
+        } finally {
+            if (preparedStatement != null) {
+                try {
+                    preparedStatement.close();
+                // preparedStatement.close()에서 SQLException이 발생할 수 있기 때문에 이를 잡아줘야 한다.
+                } catch (SQLException e) {
+                }
+            }
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException e) {
 
-        ps.close();
-        connection.close();
+                }
+            }
+        }
     }
 
     public int getCount() throws SQLException, ClassNotFoundException {
