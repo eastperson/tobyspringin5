@@ -38,8 +38,22 @@ public class UserDao {
     }
 
     // User 등록
-    public void add(User user) throws ClassNotFoundException, SQLException {
-        StatementStrategy addStatement = new AddStatement(user);
+    public void add(final User user) throws ClassNotFoundException, SQLException {
+        // add() 메소드 내부에 선언된 로컬 클래스다.
+        class AddStatement implements StatementStrategy {
+
+            @Override
+            public PreparedStatement makePreparedStatement(Connection connection) throws SQLException {
+                PreparedStatement preparedStatement = connection.prepareStatement(
+                        "insert into users(id, name, password) values (?,?,?)");
+                preparedStatement.setString(1, user.getId());
+                preparedStatement.setString(2, user.getName());
+                preparedStatement.setString(3, user.getPassword());
+                return preparedStatement;
+            }
+        }
+
+        StatementStrategy addStatement = new AddStatement();
         jdbcContextWithStatementStrategy(addStatement);
     }
 
@@ -100,10 +114,9 @@ public class UserDao {
     }
 
     public void deleteAll() throws SQLException, ClassNotFoundException {
-        // 선정한 전략 클래스의 오브젝트 생성
-        StatementStrategy statementStrategy = new DeleteAllStatement();
-        // 컨텍스트 호출. 전략 오브젝트 전달달
-       jdbcContextWithStatementStrategy(statementStrategy);
+        jdbcContextWithStatementStrategy(
+                connection -> connection.prepareStatement("delete from users")
+        );
     }
 
     public int getCount() throws SQLException, ClassNotFoundException {
