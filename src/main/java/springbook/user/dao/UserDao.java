@@ -15,46 +15,36 @@ import java.sql.SQLException;
 @Component
 public class UserDao {
 
+    private JdbcContext jdbcContext;
+    private DataSource dataSource;
     private ConnectionMaker connectionMaker;
 
-    @Autowired
     public void setConnectionMaker(ConnectionMaker connectionMaker) {
         this.connectionMaker = connectionMaker;
     }
 
-    public void jdbcContextWithStatementStrategy(StatementStrategy statementStrategy) throws ClassNotFoundException, SQLException {
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-        try {
-            connection = connectionMaker.makeNewConnection();
-            preparedStatement = statementStrategy.makePreparedStatement(connection);
-            preparedStatement.executeUpdate();
-        } catch (SQLException e) {
-            throw e;
-        } finally {
-            if (preparedStatement != null) { try { preparedStatement.close(); } catch (SQLException e) {} }
-            if (connection != null) { try { connection.close(); } catch (SQLException e) {} }
-        }
+    // 수정자 메소드이면서 jdbcContext에 대한 생성, DI 작업을 수행한다.
+    public void setDataSource(DataSource dataSource) {
+        // JdbcContext 생성
+        this.jdbcContext = new JdbcContext();
+        // 의존오브젝트 주입(DI)
+        this.jdbcContext.setConnectionMaker(new DConnectionMaker(dataSource));
+        // 아직 JdbcContext를 적용하지 않은 메소드를 위해 저장해둔다.
+        this.dataSource = dataSource;
     }
 
     // User 등록
     public void add(final User user) throws ClassNotFoundException, SQLException {
-        // add() 메소드 내부에 선언된 로컬 클래스다.
-        class AddStatement implements StatementStrategy {
-
-            @Override
-            public PreparedStatement makePreparedStatement(Connection connection) throws SQLException {
-                PreparedStatement preparedStatement = connection.prepareStatement(
-                        "insert into users(id, name, password) values (?,?,?)");
-                preparedStatement.setString(1, user.getId());
-                preparedStatement.setString(2, user.getName());
-                preparedStatement.setString(3, user.getPassword());
-                return preparedStatement;
-            }
-        }
-
-        StatementStrategy addStatement = new AddStatement();
-        jdbcContextWithStatementStrategy(addStatement);
+        this.jdbcContext.workWithStatementStrategy(
+                connection -> {
+                    PreparedStatement preparedStatement = connection.prepareStatement(
+                            "insert into users(id, name, password) values (?,?,?)");
+                    preparedStatement.setString(1, user.getId());
+                    preparedStatement.setString(2, user.getName());
+                    preparedStatement.setString(3, user.getPassword());
+                    return preparedStatement;
+                }
+        );
     }
 
     // User 조회
@@ -114,10 +104,10 @@ public class UserDao {
     }
 
     public void deleteAll() throws SQLException, ClassNotFoundException {
-        jdbcContextWithStatementStrategy(
-                connection -> connection.prepareStatement("delete from users")
-        );
+        this.jdbcContext.executeSql("delete from users");
     }
+
+
 
     public int getCount() throws SQLException, ClassNotFoundException {
         Connection connection = connectionMaker.makeNewConnection();
