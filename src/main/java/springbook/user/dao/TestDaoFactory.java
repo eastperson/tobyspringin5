@@ -8,8 +8,12 @@ import org.springframework.context.annotation.Configuration;
 public class TestDaoFactory {
 
     @Bean
-    public UserDao userDao() {
-        return new UserDao();
+    public UserDaoJdbc userDao() {
+        UserDaoJdbc userDaoJdbc = new UserDaoJdbc();
+        DataSource dataSource = new SingleConnectionDataSource("jdbc:mysql://localhost:3306/springbook", "spring", "book");
+        ConnectionMaker connectionMaker = new DConnectionMaker(dataSource);
+        userDaoJdbc.setConnectionMaker(connectionMaker);
+        return userDaoJdbc;
     }
 
     public AccountDao accountDao() {
