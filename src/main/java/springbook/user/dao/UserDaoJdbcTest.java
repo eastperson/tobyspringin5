@@ -118,4 +118,27 @@ public class UserDaoJdbcTest {
         userDao.add(user1);
         assertThatThrownBy(() -> userDao.add(user1)).isInstanceOf(DataAccessException.class);
     }
+
+    @Test
+    public void update() {
+        userDao.deleteAll();
+
+        User user1 = new User("ep", "김동인", "springno1", Level.BASIC, 1, 0);
+        User user2 = new User("nak", "김낙영", "springno2", Level.BASIC, 1, 0);
+        userDao.add(user1);
+        userDao.add(user2);
+
+        user1.setName("김동인");
+        user1.setPassword("springno6");
+        user1.setLevel(Level.GOLD);
+        user1.setLogin(1000);
+        user1.setRecommend(999);
+        userDao.update(user1);
+
+
+        User userUpdate = userDao.get(user1.getId());
+        checkSameUSer(user1, userUpdate);
+        User user2same = userDao.get(user2.getId());
+        checkSameUSer(user2, user2same);
+    }
 }
