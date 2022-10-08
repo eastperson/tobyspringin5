@@ -62,4 +62,25 @@ public class UserServiceTest {
         User userUpdate = userDao.get(user.getId());
         assertThat(userUpdate.getLevel()).isEqualTo(expectedLevel);
     }
+
+    @Test
+    public void add() {
+        userDao.deleteAll();
+
+        // GOLD 레벨이 이미 지정된 User 라면 레벨을 초기화하지 않아야 한다.
+        User userWithLevel = userList.get(2);
+
+        // 레벨이 비어있는 사용자. 로직에 따라 등록 중에 BASIC 레벨도 설정돼야 한다.
+        User userWithoutLevel = userList.get(0);
+        userWithoutLevel.setLevel(null);
+
+        userService.add(userWithLevel);
+        userService.add(userWithoutLevel);
+
+        User userWithLevelRead = userDao.get(userWithLevel.getId());
+        User userWithoutLevelRead = userDao.get(userWithoutLevel.getId());
+
+        assertThat(userWithLevelRead.getLevel()).isEqualTo(userWithLevel.getLevel());
+        assertThat(userWithoutLevelRead.getLevel()).isEqualTo(userWithoutLevel.getLevel());
+    }
 }
