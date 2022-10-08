@@ -8,6 +8,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import springbook.user.domain.Level;
 import springbook.user.domain.User;
 
 import java.sql.SQLException;
@@ -35,8 +36,8 @@ public class UserDaoJdbcTest {
         userDao.deleteAll();
         assertThat(userDao.getCount()).isEqualTo(0);
 
-        User user1 = new User("ep", "김동인", "springno1");
-        User user2 = new User("nak", "김낙영", "springno2");
+        User user1 = new User("ep", "김동인", "springno1", Level.BASIC, 1, 0);
+        User user2 = new User("nak", "김낙영", "springno2", Level.BASIC, 1, 0);
         userDao.add(user1);
         userDao.add(user2);
 
@@ -56,9 +57,9 @@ public class UserDaoJdbcTest {
 
     @Test
     public void count() {
-        User user1 = new User("ep", "김동인", "springno1");
-        User user2 = new User("nak", "김낙영", "springno2");
-        User user3 = new User("sik", "오윤식", "springno3");
+        User user1 = new User("ep", "김동인", "springno1", Level.BASIC, 1, 0);
+        User user2 = new User("nak", "김낙영", "springno2", Level.BASIC, 1, 0);
+        User user3 = new User("sik", "오윤식", "springno3", Level.BASIC, 1, 0);
 
         userDao.deleteAll();
         assertThat(userDao.getCount()).isEqualTo(0);
@@ -77,9 +78,9 @@ public class UserDaoJdbcTest {
     public void getAll() {
         userDao.deleteAll();
 
-        User user1 = new User("ep", "김동인", "springno1");
-        User user2 = new User("nak", "김낙영", "springno2");
-        User user3 = new User("sik", "오윤식", "springno3");
+        User user1 = new User("ep", "김동인", "springno1", Level.BASIC, 1, 0);
+        User user2 = new User("nak", "김낙영", "springno2", Level.BASIC, 1, 0);
+        User user3 = new User("sik", "오윤식", "springno3", Level.BASIC, 1, 0);
 
         userDao.add(user1);
         List<User> users1 = userDao.getAll();
@@ -104,13 +105,16 @@ public class UserDaoJdbcTest {
         assertThat(user1.getId()).isEqualTo(user2.getId());
         assertThat(user1.getName()).isEqualTo(user2.getName());
         assertThat(user1.getPassword()).isEqualTo(user2.getPassword());
+        assertThat(user1.getLevel()).isEqualTo(user2.getLevel());
+        assertThat(user1.getLogin()).isEqualTo(user2.getLogin());
+        assertThat(user1.getRecommend()).isEqualTo(user2.getRecommend());
     }
 
     @Test
     public void duplicateKey() {
         userDao.deleteAll();
 
-        User user1 = new User("ep", "김동인", "springno1");
+        User user1 = new User("ep", "김동인", "springno1", Level.BASIC, 1, 0);
         userDao.add(user1);
         assertThatThrownBy(() -> userDao.add(user1)).isInstanceOf(DataAccessException.class);
     }

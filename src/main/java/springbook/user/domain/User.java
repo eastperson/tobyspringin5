@@ -15,4 +15,8 @@ public class User {
     private String id;
     private String name;
     private String password;
+
+    private Level level;
+    private Integer login;
+    private Integer recommend;
 }
