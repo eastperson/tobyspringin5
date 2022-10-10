@@ -53,14 +53,18 @@ public class UserServiceTest {
 
         userService.upgradeLevels();
 
-        checkLevel(userList.get(0), Level.BASIC);
-        checkLevel(userList.get(1), Level.SILVER);
-        checkLevel(userList.get(2), Level.GOLD);
+        checkLevelUpgraded(userList.get(0), false);
+        checkLevelUpgraded(userList.get(1), false);
+        checkLevelUpgraded(userList.get(2), false);
     }
 
-    private void checkLevel(User user, Level expectedLevel) {
+    private void checkLevelUpgraded(User user, boolean upgraded) {
         User userUpdate = userDao.get(user.getId());
-        assertThat(userUpdate.getLevel()).isEqualTo(expectedLevel);
+        if (upgraded) {
+            assertThat(userUpdate.getLevel()).isEqualTo(user.getLevel().nextLevel());
+        } else {
+            assertThat(userUpdate.getLevel()).isEqualTo(user.getLevel());
+        }
     }
 
     @Test
