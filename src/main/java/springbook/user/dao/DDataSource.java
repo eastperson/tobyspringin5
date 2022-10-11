@@ -7,7 +7,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 @Component
-public class DDataSource implements DataSource{
+public class DDataSource implements DataSource {
 
     @Override
     public Connection getDataSource() throws SQLException {

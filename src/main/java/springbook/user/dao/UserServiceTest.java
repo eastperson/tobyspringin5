@@ -1,21 +1,21 @@
 package springbook.user.dao;
 
-import lombok.RequiredArgsConstructor;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import springbook.user.domain.Level;
 import springbook.user.domain.User;
 
+import javax.sql.DataSource;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = { TestDaoFactory.class, UserService.class })
@@ -26,6 +26,9 @@ public class UserServiceTest {
 
     @Autowired
     UserDao userDao;
+
+    @Autowired
+    DataSource dataSource;
 
     List<User> userList;
 
@@ -38,14 +41,14 @@ public class UserServiceTest {
     public void setUp() {
         // 배열을 리스트로 만들어주는 편리한 메소드, 배열을 가변인자로 넣어주면 더욱 편리하다.
         userList = Arrays.asList(
-                new User("ep", "김동인", "springno1", Level.BASIC, 1, 0),
-                new User("nak", "김낙영", "springno2", Level.SILVER, 1, 0),
-                new User("sik", "오윤식", "springno3", Level.GOLD, 1, 0)
+                new User("ep", "김동인", "springno1", Level.BASIC, 51, 0),
+                new User("nak", "김낙영", "springno2", Level.SILVER, 1, 31),
+                new User("sik", "오윤식", "springno3", Level.GOLD, 51, 0)
         );
     }
 
     @Test
-    public void upgradeLevels() {
+    public void upgradeLevels() throws SQLException {
         userDao.deleteAll();
         for (User user : userList) {
             userDao.add(user);
@@ -86,5 +89,45 @@ public class UserServiceTest {
 
         assertThat(userWithLevelRead.getLevel()).isEqualTo(userWithLevel.getLevel());
         assertThat(userWithoutLevelRead.getLevel()).isEqualTo(userWithoutLevel.getLevel());
+    }
+
+    @Test
+    public void upgradeAllOrNothing() {
+        UserService testUserService = new TestUserService(userDao, userList.get(1).getId());
+        testUserService.setDataSource(dataSource);
+        userDao.deleteAll();
+        for (User user: userList) {
+            userDao.add(user);
+        }
+
+        try {
+            // TestUserService 는 업그레이드 작업 중에 예외가 발생해야 한다. 정상 종료라면 문제가 있으니 실패
+            // TestUSerService 가 던져주는 예외를 잡아서 계속 진행되도록 한다. 그 외의 예외라면 테스트 실패
+            assertThatThrownBy(testUserService::upgradeLevels).isInstanceOf(TestUserServiceException.class);
+        } catch (TestUserServiceException e) {
+        }
+        // 예외가 발생하기 전에 레벨 변경이 있었던 사용자의 레벨이 처음 상태로 바뀌었나 확인인
+        checkLevelUpgraded(userList.get(1), false);
+    }
+
+    static class TestUserService extends UserService {
+        private String id;
+
+        public TestUserService(UserDao userDao, String id) {
+            super(userDao);
+            this.id = id;
+        }
+
+        @Override
+        protected void upgradeLevel(User user) {
+            if (user.getId().equals(this.id)) {
+                throw new TestUserServiceException();
+            }
+            super.upgradeLevel(user);
+        }
+    }
+
+    static class TestUserServiceException extends RuntimeException {
+
     }
 }
