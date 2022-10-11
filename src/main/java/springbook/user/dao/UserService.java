@@ -1,20 +1,22 @@
 package springbook.user.dao;
 
-import com.mysql.cj.Session;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import springbook.user.domain.Level;
 import springbook.user.domain.User;
 
 import javax.sql.DataSource;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Properties;
 
 @Service
 @RequiredArgsConstructor
@@ -51,18 +53,6 @@ public class UserService {
     protected void upgradeLevel(User user) {
         user.upgradeLevel();
         userDao.update(user);
-        sendUpgradeEMail(user);
-    }
-
-    private void sendUpgradeEMail(User user) {
-        Properties props = new Properties();
-        props.put("mail.smtp.hos", "mail.ksug.org");
-        Session s = Session.getInstance(props, null);
-
-        MimeMessage message = new MimeMessage(s);
-        try {
-            message.set
-        }
     }
 
     private boolean canUpgradeLevel(User user) {
